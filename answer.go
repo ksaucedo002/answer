@@ -23,9 +23,9 @@ type ResponseDetails struct {
 	Omits    string `json:"omits,omitempty"`
 }
 type Response struct {
-	Type    string           `json:"type"` //error, response
-	Message string           `json:"message"`
-	Data    interface{}      `json:"data"`
+	Type    string           `json:"type,omitempty"` //error, response
+	Message string           `json:"message,omitempty"`
+	Data    interface{}      `json:"data,omitempty"`
 	Details *ResponseDetails `json:"details,omitempty"`
 }
 
