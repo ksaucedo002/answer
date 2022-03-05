@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/ksaucedo002/answer/errores"
-	"github.com/ksaucedo002/ctxman"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 )
@@ -17,10 +16,10 @@ const (
 )
 
 type ResponseDetails struct {
-	NumItems int    `json:"num_items"`
-	OffSet   int    `json:"offset"`
-	Limit    int    `json:"limit,omitempty"`
-	Omits    string `json:"omits,omitempty"`
+	NumItems int `json:"num_items"`
+	OffSet   int `json:"offset"`
+	Limit    int `json:"limit"`
+	Preloads int `json:"preload,omitempty"`
 }
 type Response struct {
 	Type    string           `json:"type,omitempty"` //error, response
@@ -35,19 +34,19 @@ func OK(c echo.Context, payload interface{}) error {
 		Data: payload,
 	})
 }
-func OKDetails(c echo.Context, ctx ctxman.Ctxx, payload interface{}, num_elements int) error {
-	params := ctx.GetParams()
+
+func OKDetails(c echo.Context, offset, limit, num_elements int, payload interface{}) error {
 	return c.JSON(http.StatusOK, &Response{
 		Type: response_data,
 		Data: payload,
 		Details: &ResponseDetails{
-			OffSet:   params.OffSet(),
-			Limit:    params.Limit(),
-			Omits:    params.Omitfiels(),
+			OffSet:   offset,
+			Limit:    limit,
 			NumItems: num_elements,
 		},
 	})
 }
+
 func Message(c echo.Context, message string) error {
 	return c.JSON(http.StatusOK, &Response{
 		Type:    response_message,
