@@ -3,6 +3,7 @@ package answer
 import (
 	"errors"
 	"net/http"
+	"reflect"
 
 	"github.com/ksaucedo002/answer/errores"
 	"github.com/labstack/echo/v4"
@@ -16,10 +17,10 @@ const (
 )
 
 type ResponseDetails struct {
-	NumItems int `json:"num_items"`
-	OffSet   int `json:"offset"`
-	Limit    int `json:"limit"`
-	Preloads int `json:"preload,omitempty"`
+	NumItems int      `json:"num_items"`
+	OffSet   int      `json:"offset"`
+	Limit    int      `json:"limit"`
+	Preloads []string `json:"preload,omitempty"`
 }
 type Response struct {
 	Type    string           `json:"type,omitempty"` //error, response
@@ -34,15 +35,23 @@ func OK(c echo.Context, payload interface{}) error {
 		Data: payload,
 	})
 }
-
-func OKDetails(c echo.Context, offset, limit, num_elements int, payload interface{}) error {
+func payloadLen(payload interface{}) int {
+	var vlen = 0
+	switch reflect.TypeOf(payload).Kind() {
+	case reflect.Slice:
+		vlen = reflect.ValueOf(payload).Len()
+	}
+	return vlen
+}
+func OKDetails(c echo.Context, payload interface{}, p Parmas) error {
 	return c.JSON(http.StatusOK, &Response{
 		Type: response_data,
 		Data: payload,
 		Details: &ResponseDetails{
-			OffSet:   offset,
-			Limit:    limit,
-			NumItems: num_elements,
+			OffSet:   p.GetOffSet(),
+			Limit:    p.GetLimit(),
+			NumItems: payloadLen(payload),
+			Preloads: p.GetPreloads(),
 		},
 	})
 }
