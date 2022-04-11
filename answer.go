@@ -43,7 +43,7 @@ func payloadLen(payload interface{}) int {
 	}
 	return vlen
 }
-func OKDetails(c echo.Context, payload interface{}, p Parmas) error {
+func OKDetails(c echo.Context, payload interface{}, p Params) error {
 	return c.JSON(http.StatusOK, &Response{
 		Type: response_data,
 		Data: payload,
