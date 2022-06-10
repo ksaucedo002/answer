@@ -35,6 +35,12 @@ func OK(c echo.Context, payload interface{}) error {
 		Data: payload,
 	})
 }
+func ResOK(payload interface{}) Response {
+	return Response{
+		Type: response_data,
+		Data: payload,
+	}
+}
 func payloadLen(payload interface{}) int {
 	var vlen = 0
 	switch reflect.TypeOf(payload).Kind() {
@@ -62,11 +68,16 @@ func Message(c echo.Context, message string) error {
 		Message: message,
 	})
 }
-
-func ErrorResponse(c echo.Context, err error) error {
+func SMS(message string) Response {
+	return Response{
+		Type:    response_message,
+		Message: message,
+	}
+}
+func unwrap(err error) (code int, message string) {
 	var errc *errores.CustomError
-	code := 400
-	message := "algo paso, hubo un error no esperado"
+	code = 400
+	message = "algo paso, hubo un error no esperado"
 	if errors.As(err, &errc) {
 		code = errc.HttpCode
 		message = errc.ErrorMessage
@@ -81,7 +92,15 @@ func ErrorResponse(c echo.Context, err error) error {
 			return
 		}
 	}(err, errc)
+	return code, message
+}
+func ErrorResponse(c echo.Context, err error) error {
+	code, message := unwrap(err)
 	return c.JSON(code, &Response{Type: response_error, Message: message})
+}
+func Error(err error) Response {
+	_, message := unwrap(err)
+	return Response{Type: response_error, Message: message}
 }
 func JSONErrorResponse(c echo.Context) error {
 	return ErrorResponse(c, errores.NewBadRequestf(nil, errores.ErrInvalidJSON))
